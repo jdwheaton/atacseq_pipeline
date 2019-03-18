@@ -131,6 +131,5 @@ rule bam_coverage:
                 --normalizeUsing RPKM \
                 --ignoreForNormalization chrX chrY chrM\
                 --samFlagExclude 1024 \
-                --extendReads \
                 &> {log}
                 """
