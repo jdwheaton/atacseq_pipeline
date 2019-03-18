@@ -32,7 +32,7 @@ eval $(parse_yaml config.yml)
 if [ "$paired" == true ]; then
   # Execute sbatch command for paired end
   echo "Executing paired-end workflow"
-  snakemake -s chipseq_pe_pipeline.py -p -j 100 --latency-wait 120 \
+  snakemake -s atacseq_pe_pipeline.py -p -j 100 --latency-wait 120 \
   --use-singularity --singularity-args "-H $PWD -B /work/mc394/" \
   --cluster-config cluster.json \
   --cluster "sbatch -n {threads} --mem={cluster.mem} -t {cluster.time} \
@@ -40,7 +40,7 @@ if [ "$paired" == true ]; then
 elif [ "$paired" == false ]; then
   # Execute sbatch command for single end
   echo "Executing single-end workflow"
-  snakemake -s chipseq_se_pipeline.py -p -j 100 --latency-wait 120 \
+  snakemake -s atacseq_se_pipeline.py -p -j 100 --latency-wait 120 \
   --use-singularity --singularity-args "-H $PWD -B /work/mc394/" \
   --cluster-config cluster.json \
   --cluster "sbatch -n {threads} --mem={cluster.mem} -t {cluster.time} \
