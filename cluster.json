@@ -18,37 +18,7 @@
         "time" : "04:00:00",
         "mem" : "32G"
     },
-    "bowtie_align_yeast" :
-    {
-    	"mem" : "8G"
-    },
     "samtools_sort" :
-    {
-    	"mem" : "16G",
-    	"time" : "01:00:00"
-    },
-    "bowtie2_index" :
-    {
-    	"mem" : "16G",
-    	"partition" : "common",
-    	"time" : "04:00:00",
-    	"out" : "log/{rule}_%j.out",
-    	"err" : "log/{rule}_%j.err"
-    },
-    "star_index" :
-    {
-    	"mem" : "32G",
-    	"partition" : "common",
-    	"time" : "04:00:00",
-    	"out" : "log/{rule}_%j.out",
-    	"err" : "log/{rule}_%j.err"
-    },
-    "star_align" :
-    {
-    	"mem" : "32G",
-    	"time" : "01:30:00"
-    },
-    "htseq_count" :
     {
     	"mem" : "16G",
     	"time" : "01:00:00"
