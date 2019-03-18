@@ -1,0 +1,3 @@
+bt2_index: "/work/mc394/GenomeIndex/bowtie2/GRCm38"
+blacklist: "reference_data/mm10.blacklist.bed"
+paired: "false"

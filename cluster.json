@@ -1,0 +1,66 @@
+{
+    "__default__" :
+    {
+        "time" : "00:45:00",
+        "partition" : "scavenger",
+        "mem" : "8G",
+        "output" : "logs/slurm/output/{rule}.{wildcards}.out",
+        "error" : "logs/slurm/error/{rule}.{wildcards}.err",
+        "extra" : ""
+    },
+    "trim_galore" :
+    {
+    	"time" : "01:30:00",
+    	"mem" : "8G"
+    },
+    "bowtie_align" :
+    {
+        "time" : "04:00:00",
+        "mem" : "32G"
+    },
+    "bowtie_align_yeast" :
+    {
+    	"mem" : "8G"
+    },
+    "samtools_sort" :
+    {
+    	"mem" : "16G",
+    	"time" : "01:00:00"
+    },
+    "bowtie2_index" :
+    {
+    	"mem" : "16G",
+    	"partition" : "common",
+    	"time" : "04:00:00",
+    	"out" : "log/{rule}_%j.out",
+    	"err" : "log/{rule}_%j.err"
+    },
+    "star_index" :
+    {
+    	"mem" : "32G",
+    	"partition" : "common",
+    	"time" : "04:00:00",
+    	"out" : "log/{rule}_%j.out",
+    	"err" : "log/{rule}_%j.err"
+    },
+    "star_align" :
+    {
+    	"mem" : "32G",
+    	"time" : "01:30:00"
+    },
+    "htseq_count" :
+    {
+    	"mem" : "16G",
+    	"time" : "01:00:00"
+    },
+    "remove_duplicates" :
+    {
+    	"mem" : "32G",
+    	"time" : "01:00:00"
+    },
+    "bam_coverage" :
+    {
+    	"mem" : "32G",
+    	"time" : "01:00:00"
+    }
+}
