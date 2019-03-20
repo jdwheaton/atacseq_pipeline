@@ -45,7 +45,7 @@ rule trim_galore:
 
 rule bowtie_align:
     output:
-        "results/{sample}.bam"
+        temp("results/{sample}.bam")
     input:
         READ1 = "trimmed_fastq/{sample}_R1_val_1.fq",
         READ2 = "trimmed_fastq/{sample}_R2_val_2.fq"
@@ -61,7 +61,7 @@ rule samtools_sort:
     input:
         "results/{sample}.bam"
     output:
-        "results/{sample}.sorted.bam"
+        temp("results/{sample}.sorted.bam")
     log:
         "logs/{sample}.samtools_sort.log"
     singularity:
