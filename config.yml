@@ -1,3 +1,4 @@
 bt2_index: "/work/mc394/GenomeIndex/bowtie2/GRCm38"
 blacklist: "reference_data/mm10.blacklist.bed"
+countfile: "peaks/generic.counts"
 paired: "false"

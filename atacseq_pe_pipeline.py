@@ -3,13 +3,15 @@ configfile: "config.yml"
 SAMPLES, = glob_wildcards("raw_data/{smp}_R1.fastq.gz")
 BT2INDEX = config["bt2_index"]
 BLACKLIST = config["blacklist"]
+COUNTFILE = config["countfile"]
 
 ALL_FASTQC = expand("fastqc_out/{sample}_R1_fastqc.zip", sample=SAMPLES)
 ALL_BAMCOV = expand("results/{sample}.dedup.masked.rpkm.bw", sample=SAMPLES)
+PEAKS_NARROWPEAK = expand("peaks/{sample}_peaks.narrowPeak", sample=SAMPLES)
 
 rule all:
     input:
-        ALL_FASTQC + ALL_BAMCOV
+        ALL_FASTQC + ALL_BAMCOV + PEAKS_NARROWPEAK + COUNTFILE
 
 rule fastqc:
     input:
@@ -133,3 +135,62 @@ rule bam_coverage:
                 --samFlagExclude 1024 \
                 &> {log}
                 """
+
+rule callpeaks_narrow:
+    input:
+        "results/{sample}.sorted.dedup.masked.bam"
+    output:
+        "peaks/{sample}_peaks.narrowPeak"
+    singularity:
+        "shub://jdwheaton/singularity-ngs:chip_atac_post"
+    log:
+        "logs/{sample}.macs2.log"
+    shell:
+        "macs2 callpeak --nomodel -t {input} -f BAMPE \
+        -n peaks/{wildcards.sample} -g mm -q 0.1 &> {log}"
+
+rule combine_pk:
+    input:
+        expand("peaks/{sample}_peaks.narrowPeak", sample=SAMPLES)
+    output:
+        "peaks/combined_peaks.sorted.bed"
+    shell:
+        "cat {input} | sort -k1,1 -k2,2n > {output}"
+
+rule merge_peaks:
+    input:
+        "peaks/combined_peaks.sorted.bed"
+    output:
+        "peaks/combined_peaks_merged.bed"
+    singularity:
+        "shub://jdwheaton/singularity-ngs:chip_atac_post"
+    shell:
+        """bedtools merge -i {input} > {output}"""
+
+rule bed_to_saf:
+    input:
+        "peaks/combined_peaks_merged.bed"
+    output:
+        "peaks/combined_peaks_merged.saf"
+    shell:
+        """
+        awk 'OFS="\\t" {{print $1"."$2+1"."$3, $1, $2+1, $3, "."}}' {input} > {output}
+        """
+
+rule featureCounts:
+    input:
+        FILES=expand("results/{sample}.sorted.dedup.masked.bam", sample=SAMPLES),
+        PEAKSET="peaks/combined_peaks_merged.saf"
+    output:
+        "peaks/atac_mergedpeak.counts"
+    threads: 4
+    singularity:
+        "shub://jdwheaton/singularity-ngs:chip_atac_post"
+    log:
+        "logs/featureCounts.log"
+    shell:
+        "featureCounts -T {threads} --largestOverlap -F SAF --ignoreDup \
+        -a {input.PEAKSET} \
+        -o {output} \
+        {input.FILES} \
+        &> {log}"
