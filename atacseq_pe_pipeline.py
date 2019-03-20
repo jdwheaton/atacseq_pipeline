@@ -3,7 +3,7 @@ configfile: "config.yml"
 SAMPLES, = glob_wildcards("raw_data/{smp}_R1.fastq.gz")
 BT2INDEX = config["bt2_index"]
 BLACKLIST = config["blacklist"]
-COUNTFILE = config["countfile"]
+COUNTFILE = list(config["countfile"])
 
 ALL_FASTQC = expand("fastqc_out/{sample}_R1_fastqc.zip", sample=SAMPLES)
 ALL_BAMCOV = expand("results/{sample}.dedup.masked.rpkm.bw", sample=SAMPLES)
