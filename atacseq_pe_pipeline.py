@@ -182,7 +182,7 @@ rule featureCounts:
         FILES=expand("results/{sample}.sorted.dedup.masked.bam", sample=SAMPLES),
         PEAKSET="peaks/combined_peaks_merged.saf"
     output:
-        "peaks/atac_mergedpeak.counts"
+        COUNTFILE
     threads: 4
     singularity:
         "shub://jdwheaton/singularity-ngs:chip_atac_post"
