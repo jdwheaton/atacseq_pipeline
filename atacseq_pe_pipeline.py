@@ -208,7 +208,7 @@ rule saf_to_bed:
         awk 'OFS="\\t" {{print $2,$3-1,$4,$1,$5}}' {input} > {output}
         """
 
-ule annotate_peaks:
+rule annotate_peaks:
     input:
         "peaks/combined_peaks_merged_named.bed"
     output:
