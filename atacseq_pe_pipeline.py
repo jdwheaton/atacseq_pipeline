@@ -146,7 +146,8 @@ rule callpeaks_narrow:
     log:
         "logs/{sample}.macs2.log"
     shell:
-        "macs2 callpeak --nomodel -t {input} -f BAMPE \
+        "macs2 callpeak --nomodel -t {input} -f BAM \
+        --shift -100 --extsize 200 \
         -n peaks/{wildcards.sample} -g mm -q 0.1 &> {log}"
 
 rule combine_pk:
