@@ -4,10 +4,12 @@ SAMPLES, = glob_wildcards("raw_data/{smp}_R1.fastq.gz")
 BT2INDEX = config["bt2_index"]
 BLACKLIST = config["blacklist"]
 COUNTFILE = [config["countfile"]]
+ANNOTATION = config["annotation"]
 
 ALL_FASTQC = expand("fastqc_out/{sample}_R1_fastqc.zip", sample=SAMPLES)
 ALL_BAMCOV = expand("results/{sample}.dedup.masked.rpkm.bw", sample=SAMPLES)
 PEAKS_NARROWPEAK = expand("peaks/{sample}_peaks.narrowPeak", sample=SAMPLES)
+ANNOTATED_PEAKS = ["peaks/merged_peaks_annotated.txt"]
 
 rule all:
     input:
@@ -195,3 +197,26 @@ rule featureCounts:
         -o {output} \
         {input.FILES} \
         &> {log}"
+
+rule saf_to_bed:
+    input:
+        "peaks/combined_peaks_merged.saf"
+    output:
+        temp("peaks/combined_peaks_merged_named.bed")
+    shell:
+        """
+        awk 'OFS="\\t" {{print $2,$3-1,$4,$1,$5}}' {input} > {output}
+        """
+
+ule annotate_peaks:
+    input:
+        "peaks/combined_peaks_merged_named.bed"
+    output:
+        "peaks/merged_peaks_annotated.txt"
+    singularity:
+        "shub://jdwheaton/singularity-ngs:chip_atac_post"
+    shell:
+        """
+        export PATH=$PATH:/homer/bin
+        /homer/bin/annotatePeaks.pl {input} mm10 -gtf {ANNOTATION} > {output}
+        """
