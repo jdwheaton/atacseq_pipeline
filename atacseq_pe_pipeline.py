@@ -13,7 +13,7 @@ ANNOTATED_PEAKS = ["peaks/merged_peaks_annotated.txt"]
 
 rule all:
     input:
-        ALL_FASTQC + ALL_BAMCOV + PEAKS_NARROWPEAK + COUNTFILE
+        ALL_FASTQC + ALL_BAMCOV + PEAKS_NARROWPEAK + COUNTFILE + ANNOTATED_PEAKS
 
 rule fastqc:
     input:
