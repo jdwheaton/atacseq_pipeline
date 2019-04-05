@@ -13,7 +13,7 @@ ANNOTATED_PEAKS = ["peaks/merged_peaks_annotated.txt"]
 
 rule all:
     input:
-        ALL_FASTQC + ALL_BAMCOV + PEAKS_NARROWPEAK + COUNTFILE + ANNOTATED_PEAKS
+        ALL_FASTQC + ALL_BAMCOV + PEAKS_NARROWPEAK + COUNTFILE + ANNOTATED_PEAKS + ["multiqc_report.html"]
 
 rule fastqc:
     input:
@@ -220,3 +220,10 @@ rule annotate_peaks:
         export PATH=$PATH:/homer/bin
         /homer/bin/annotatePeaks.pl {input} mm10 -gtf {ANNOTATION} > {output}
         """
+
+rule multiqc:
+    input:
+        ALL_FASTQC + ALL_BAMCOV + PEAKS_NARROWPEAK + COUNTFILE + ANNOTATED_PEAKS
+    output: "multiqc_report.html"
+    threads: 1
+    script: "multiqc.sh"
