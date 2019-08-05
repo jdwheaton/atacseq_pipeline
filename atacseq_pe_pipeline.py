@@ -1,6 +1,7 @@
 configfile: "config.yml"
 
-SAMPLES, = glob_wildcards("raw_data/{smp}_R1.fastq.gz")
+# SAMPLES, = glob_wildcards("raw_data/{smp}_R1.fastq.gz")
+SAMPLES = [x for reps in config["samples"] for x in reps]
 BT2INDEX = config["bt2_index"]
 BLACKLIST = config["blacklist"]
 COUNTFILE = [config["countfile"]]
@@ -152,9 +153,17 @@ rule callpeaks_narrow:
         --shift -100 --extsize 200 \
         -n peaks/{wildcards.sample} -g mm -q 0.1 &> {log}"
 
+rule idr:
+    input:
+        lambda wildcards: expand("peaks/{replicate}_peaks.narrowPeak", replicate=config['samples'][wildcards.sample])
+    output:
+        "peaks/{sample}_idr.txt"
+    shell:
+        "idr --samples {input} --idr-threshold 0.05 --output-file {output}"
+
 rule combine_pk:
     input:
-        expand("peaks/{sample}_peaks.narrowPeak", sample=SAMPLES)
+        expand("peaks/{sample}_idr.txt", sample=config["samples"])
     output:
         "peaks/combined_peaks.sorted.bed"
     shell:
