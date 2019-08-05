@@ -27,7 +27,7 @@ rule fastqc:
     log:
         "logs/{sample}.fastqc.log"
     singularity:
-        "shub://jdwheaton/singularity-ngs:qc_trim"
+        "docker://dukegcb/fastqc"
     threads: 1
     shell:
         "fastqc -o fastqc_out/ {input} &> {log}"
@@ -43,7 +43,7 @@ rule trim_galore:
         "logs/{sample}.trimgalore.log"
     threads: 1
     singularity:
-        "shub://jdwheaton/singularity-ngs:qc_trim"
+        "docker://dukegcb/trim-galore"
     shell:
         "trim_galore --dont_gzip --fastqc -o trimmed_fastq/ --paired {input} &> {log}"
 
@@ -57,7 +57,7 @@ rule bowtie_align:
         "logs/{sample}.bowtie.log"
     threads: 5
     singularity:
-        "shub://jdwheaton/singularity-ngs:latest"
+        "docker://duke-gcb/bowtie2"
     shell:
         "bowtie2 --very-sensitive --no-unal -p {threads} -x {BT2INDEX} -1 {input.READ1} -2 {input.READ2} 2> {log} | samtools view -bS -o {output}"
 
@@ -69,7 +69,7 @@ rule samtools_sort:
     log:
         "logs/{sample}.samtools_sort.log"
     singularity:
-        "shub://jdwheaton/singularity-ngs:latest"
+        "docker://jweinstk/samtools"
     shell:
         "samtools sort -o {output} {input} &> {log}"
 
@@ -82,7 +82,7 @@ rule remove_duplicates:
     log:
         "logs/{sample}.rmdup.log"
     singularity:
-        "shub://jdwheaton/singularity-ngs:chip_atac_post"
+        "docker://broadinstitute/picard"
     shell: """
             java -Xmx16g -jar /picard.jar MarkDuplicates \
                 INPUT={input} \
@@ -102,7 +102,7 @@ rule remove_blacklisted:
     log:
         "logs/{sample}.deblacklist.log"
     singularity:
-        "shub://jdwheaton/singularity-ngs:chip_atac_post"
+        "docker://biowardrobe2/bedtools2:v2.26.0"
     shell:
         "bedtools intersect -v -a {input.BAM} -b {input.BLACKLIST} > {output} 2> {log}"
 
@@ -114,7 +114,7 @@ rule samtools_index:
     log:
         "logs/{sample}.sami_ndex.log"
     singularity:
-        "shub://jdwheaton/singularity-ngs:latest"
+        "docker://jweinstk/samtools"
     shell:
         "samtools index {input} {output} &> {log}"
 
@@ -125,7 +125,7 @@ rule bam_coverage:
     output:
         "results/{sample}.dedup.masked.rpkm.bw"
     singularity:
-        "shub://jdwheaton/singularity-ngs:chip_atac_post"
+        "docker://genomicpariscentre/deeptools"
     threads: 4
     log:
         "logs/{sample}.bamcoverage.log"
@@ -144,7 +144,7 @@ rule callpeaks_narrow:
     output:
         "peaks/{sample}_peaks.narrowPeak"
     singularity:
-        "shub://jdwheaton/singularity-ngs:chip_atac_post"
+        "docker://dukegcb/macs2"
     log:
         "logs/{sample}.macs2.log"
     shell:
@@ -166,7 +166,7 @@ rule merge_peaks:
     output:
         "peaks/combined_peaks_merged.bed"
     singularity:
-        "shub://jdwheaton/singularity-ngs:chip_atac_post"
+        "docker://biowardrobe2/bedtools2:v2.26.0"
     shell:
         """bedtools merge -i {input} > {output}"""
 
@@ -188,7 +188,7 @@ rule featureCounts:
         COUNTFILE
     threads: 4
     singularity:
-        "shub://jdwheaton/singularity-ngs:chip_atac_post"
+        "docker://genomicpariscentre/featurecounts"
     log:
         "logs/featureCounts.log"
     shell:
@@ -213,17 +213,15 @@ rule annotate_peaks:
         "peaks/combined_peaks_merged_named.bed"
     output:
         "peaks/merged_peaks_annotated.txt"
-    singularity:
-        "shub://jdwheaton/singularity-ngs:chip_atac_post"
     shell:
-        """
-        export PATH=$PATH:/homer/bin
-        /homer/bin/annotatePeaks.pl {input} mm10 -gtf {ANNOTATION} > {output}
-        """
+        "annotatePeaks.pl {input} mm10 -gtf {ANNOTATION} > {output}"
 
 rule multiqc:
     input:
         ALL_FASTQC + ALL_BAMCOV + PEAKS_NARROWPEAK + COUNTFILE + ANNOTATED_PEAKS
     output: "multiqc_report.html"
+    singularity:
+        "docker://ewels/multiqc"
     threads: 1
-    script: "multiqc.sh"
+    shell:
+        "multiqc ."
