@@ -163,7 +163,7 @@ rule idr:
 
 rule combine_pk:
     input:
-        expand("peaks/{sample}_idr.txt", sample=config["samples"])
+        [expand("peaks/{sample}_idr.txt", sample=config["samples"]) if config['idr'] else expand("peaks/{sample}_peaks.narrowPeak", sample=config["samples"])]
     output:
         "peaks/combined_peaks.sorted.bed"
     shell:

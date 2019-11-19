@@ -1,5 +1,5 @@
 bt2_index: "/work/mc394/index/bowtie2/mm10"
-blacklist: "reference_data/mm10.blacklist.bed"
+blacklist: "reference_data/ENCFF547MET.bed"
 countfile: "peaks/SX_atac_idr.counts"
 annotation: "/work/mc394/genomes/annotation/gencode.vM22.annotation.gtf"
 paired: "true"
@@ -16,6 +16,6 @@ samples:
   24hr_CXCL2neg:
     - 24hr_CXCL2neg_01
     - 24hr_CXCL2neg_03
-  24hr_CXCL2neg:
+  24hr_CXCL2pos:
     - 24hr_CXCL2pos_01
     - 24hr_CXCL2pos_03
