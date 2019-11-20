@@ -11,8 +11,10 @@ def revLookup(sample):
     '''Finds the condition grouping name and rep number for a given sample'''
     return next("%s_rep%d" % (key, value.index(sample)) for key, value in config['samples'].items() if sample in value)
 
+mappings = {revLookup(x) : x for x in SAMPLES}
+
 ALL_FASTQC = expand("fastqc_out/{sample}_R1_fastqc.zip", sample=SAMPLES)
-ALL_BAMCOV = expand("results/{sample}.dedup.masked.rpkm.bw", sample=[revLookup(s) for s in SAMPLES])
+ALL_BAMCOV = expand("results/{sample}.dedup.masked.rpkm.bw", sample=list(mappings.keys()))
 PEAKS_NARROWPEAK = expand("peaks/{sample}_peaks.narrowPeak", sample=SAMPLES)
 ANNOTATED_PEAKS = ["peaks/merged_peaks_annotated.txt"]
 
@@ -141,10 +143,10 @@ rule samtools_index:
 
 rule bam_coverage:
     input:
-        BAM = "results/{sample}.sorted.dedup.masked.bam",
-        BAI = "results/{sample}.sorted.dedup.masked.bai"
+        BAM = lambda wildcards: "results/{}.sorted.dedup.masked.bam".format(mappings[wildcards.sample]),
+        BAI = lambda wildcards: "results/{}.sorted.dedup.masked.bai".format(mappings[wildcards.sample])
     output:
-        lambda wildcards: "results/{}.dedup.masked.rpkm.bw".format(revLookup(wildcards.sample))
+        "results/{sample}.dedup.masked.rpkm.bw"
     singularity:
         "docker://genomicpariscentre/deeptools"
     threads: 4
