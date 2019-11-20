@@ -22,18 +22,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     data = pd.read_csv(args.metadata[0]).fillna('None')
-    data['condition'] = data[args.group].apply(lambda x:'-'.join(x), axis=1)
+    data['condition'] = data[args.group].apply(lambda x: '-'.join(x), axis=1)
     # Remove spaces and the plus character
     data.condition = data.condition.str.replace(" ", "_").str.replace("+", "")
     # Switch to a multi-index with condition first, then Run ID (this enables aggregation)
-    data_multiindex = data.sort_values("condition").set_index(["condition", args.id_var[0]]).index
-    
+    data_multiindex = data.sort_values("condition").set_index(
+        ["condition", args.id_var[0]]).index
+
     d = {}
     for condition, sample in data_multiindex:
         if condition not in d.keys():
             d[condition] = []
         d[condition].append(sample)
-    config = {'samples' : d}
+    config = {'samples': d}
 
     with open(args.outfile[0], 'a') as f:
         f.write(yaml.dump(config, default_flow_style=False))
