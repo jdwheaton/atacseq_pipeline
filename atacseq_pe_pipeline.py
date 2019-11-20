@@ -86,7 +86,8 @@ rule bowtie_align:
 
 rule samtools_sort:
     input:
-        "results/{sample}.bam"
+        rules.bowtie_align.output
+        # "results/{sample}.bam"
     output:
         "results/{sample}.sorted.bam"
     log:
