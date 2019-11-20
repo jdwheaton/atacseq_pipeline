@@ -2,20 +2,6 @@ bt2_index: "/work/mc394/index/bowtie2/mm10"
 blacklist: "reference_data/ENCFF547MET.bed"
 countfile: "peaks/SX_atac_idr.counts"
 annotation: "/work/mc394/genomes/annotation/gencode.vM22.annotation.gtf"
-paired: "true"
+paired: true
+idr: false
 samples:
-  naive: 
-    - naive_01
-    - naive_03
-  9hr_CXCL2neg:
-    - 9hr_CXCL2neg_01
-    - 9hr_CXCL2neg_03
-  9hr_CXCL2pos:
-    - 9hr_CXCL2pos_01
-    - 9hr_CXCL2pos_03
-  24hr_CXCL2neg:
-    - 24hr_CXCL2neg_01
-    - 24hr_CXCL2neg_03
-  24hr_CXCL2pos:
-    - 24hr_CXCL2pos_01
-    - 24hr_CXCL2pos_03
