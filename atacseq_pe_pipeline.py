@@ -199,7 +199,7 @@ rule bed_to_saf:
 
 rule featureCounts:
     input:
-        FILES=expand("results/{sample}.sorted.dedup.masked.bam", sample=SAMPLES),
+        FILES=expand("alignment/{sample}.sorted.dedup.masked.bam", sample=SAMPLES),
         PEAKSET="peaks/combined_peaks_merged.saf"
     output:
         COUNTFILE
