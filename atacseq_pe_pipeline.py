@@ -17,19 +17,19 @@ rule all:
         ALL_FASTQC + ALL_BAMCOV + PEAKS_NARROWPEAK + COUNTFILE + ANNOTATED_PEAKS + ["multiqc_report.html"]
 
 rule fasterq_dump:
-    input:
+    params:
         "{sample}"
     output:
         "raw_data/{sample}_R1.fastq.gz",
         "raw_data/{sample}_R2.fastq.gz"
-    threads:
+    threads: 4
     shell:
         """
-        fasterq-dump {input} -t {input}_sra_temp -O raw_data -e {threads};
-        gzip raw_data/{input}_1.fastq;
-        gzip raw_data/{input}_2.fastq;
-        mv raw_data/{input}_1.fastq.gz raw_data/{input}_R1.fastq.gz;
-        mv raw_data/{input}_2.fastq.gz raw_data/{input}_R2.fastq.gz
+        fasterq-dump {params} -t {params}_sra_temp -O raw_data -e {threads};
+        gzip raw_data/{params}_1.fastq;
+        gzip raw_data/{params}_2.fastq;
+        mv raw_data/{params}_1.fastq.gz raw_data/{params}_R1.fastq.gz;
+        mv raw_data/{params}_2.fastq.gz raw_data/{params}_R2.fastq.gz
         """
 
 rule fastqc:
