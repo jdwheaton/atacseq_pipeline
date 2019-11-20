@@ -7,8 +7,12 @@ BLACKLIST = config["blacklist"]
 COUNTFILE = [config["countfile"]]
 ANNOTATION = config["annotation"]
 
+def revLookup(sample):
+    '''Finds the condition grouping name and rep number for a given sample'''
+    return next("%s_rep%d" % (key, value.index(sample)) for key, value in config['samples'].items() if sample in value)
+
 ALL_FASTQC = expand("fastqc_out/{sample}_R1_fastqc.zip", sample=SAMPLES)
-ALL_BAMCOV = expand("results/{sample}.dedup.masked.rpkm.bw", sample=SAMPLES)
+ALL_BAMCOV = expand("results/{sample}.dedup.masked.rpkm.bw", sample=[revLookup(s) for s in SAMPLES])
 PEAKS_NARROWPEAK = expand("peaks/{sample}_peaks.narrowPeak", sample=SAMPLES)
 ANNOTATED_PEAKS = ["peaks/merged_peaks_annotated.txt"]
 
@@ -140,7 +144,7 @@ rule bam_coverage:
         BAM = "results/{sample}.sorted.dedup.masked.bam",
         BAI = "results/{sample}.sorted.dedup.masked.bai"
     output:
-        "results/{sample}.dedup.masked.rpkm.bw"
+        "results/{}.dedup.masked.rpkm.bw".format(revLookup("{sample}"))
     singularity:
         "docker://genomicpariscentre/deeptools"
     threads: 4
