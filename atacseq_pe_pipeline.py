@@ -14,7 +14,7 @@ def revLookup(sample):
 mappings = {revLookup(x) : x for x in SAMPLES}
 
 ALL_FASTQC = expand("fastqc_out/{sample}_R1_fastqc.zip", sample=SAMPLES)
-ALL_BAMCOV = expand("results/{sample}.dedup.masked.rpkm.bw", sample=list(mappings.keys()))
+ALL_BAMCOV = expand("alignment/{sample}.dedup.masked.rpkm.bw", sample=list(mappings.keys()))
 PEAKS_NARROWPEAK = expand("peaks/{sample}_peaks.narrowPeak", sample=SAMPLES)
 ANNOTATED_PEAKS = ["peaks/merged_peaks_annotated.txt"]
 
@@ -69,8 +69,8 @@ rule bowtie_align:
         "bowtie2 --very-sensitive --no-unal -p {threads} -x {BT2INDEX} -1 {input.READ1} -2 {input.READ2} 2> {log} | samtools view -bS -o {output}"
 
 rule samtools_sort:
-    input: rules.bowtie_align.output
-        # "results/{sample}.bam"
+    input: 
+        "alignment/{sample}.bam"
     output:
         temp("alignment/{sample}.sorted.bam")
     log:
@@ -84,8 +84,8 @@ rule remove_duplicates:
     input:
         "alignment/{sample}.sorted.bam"
     output:
-        BAM = "results/{sample}.sorted.dedup.bam",
-        METRICS = "results/{sample}.dedup.metrics.txt"
+        BAM = "alignment/{sample}.sorted.dedup.bam",
+        METRICS = "alignment/{sample}.dedup.metrics.txt"
     log:
         "logs/{sample}.rmdup.log"
     singularity:
@@ -102,7 +102,7 @@ rule remove_duplicates:
 
 rule remove_blacklisted:
     input:
-        BAM = "results/{sample}.sorted.dedup.bam",
+        BAM = "alignment/{sample}.sorted.dedup.bam",
         BLACKLIST = BLACKLIST
     output:
         "alignment/{sample}.sorted.dedup.masked.bam"
@@ -127,8 +127,8 @@ rule samtools_index:
 
 rule bam_coverage:
     input:
-        BAM = lambda wildcards: "results/{}.sorted.dedup.masked.bam".format(mappings[wildcards.sample]),
-        BAI = lambda wildcards: "results/{}.sorted.dedup.masked.bai".format(mappings[wildcards.sample])
+        BAM = lambda wildcards: "alignment/{}.sorted.dedup.masked.bam".format(mappings[wildcards.sample]),
+        BAI = lambda wildcards: "alignment/{}.sorted.dedup.masked.bai".format(mappings[wildcards.sample])
     output:
         "bigwigs/{sample}.dedup.masked.rpkm.bw"
     singularity:
