@@ -14,7 +14,7 @@ def revLookup(sample):
 mappings = {revLookup(x) : x for x in SAMPLES}
 
 ALL_FASTQC = expand("fastqc_out/{sample}_R1_fastqc.zip", sample=SAMPLES)
-ALL_BAMCOV = expand("alignment/{sample}.dedup.masked.rpkm.bw", sample=list(mappings.keys()))
+ALL_BAMCOV = expand("bigwigs/{sample}.dedup.masked.rpkm.bw", sample=list(mappings.keys()))
 PEAKS_NARROWPEAK = expand("peaks/{sample}_peaks.narrowPeak", sample=SAMPLES)
 ANNOTATED_PEAKS = ["peaks/merged_peaks_annotated.txt"]
 
