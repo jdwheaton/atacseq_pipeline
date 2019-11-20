@@ -1,7 +1,7 @@
 configfile: "config.yml"
 
 # SAMPLES, = glob_wildcards("raw_data/{smp}_R1.fastq.gz")
-SAMPLES = [x for reps in config["samples"] for x in reps]
+SAMPLES = [x for condition in config["samples"] for x in config["samples"][condition]]
 BT2INDEX = config["bt2_index"]
 BLACKLIST = config["blacklist"]
 COUNTFILE = [config["countfile"]]
