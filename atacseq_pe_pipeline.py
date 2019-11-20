@@ -144,7 +144,7 @@ rule bam_coverage:
         BAM = "results/{sample}.sorted.dedup.masked.bam",
         BAI = "results/{sample}.sorted.dedup.masked.bai"
     output:
-        "results/{}.dedup.masked.rpkm.bw".format(revLookup("{sample}"))
+        lambda wildcards: "results/{}.dedup.masked.rpkm.bw".format(revLookup(wildcards.sample))
     singularity:
         "docker://genomicpariscentre/deeptools"
     threads: 4
