@@ -22,22 +22,6 @@ rule all:
     input:
         ALL_FASTQC + ALL_BAMCOV + PEAKS_NARROWPEAK + COUNTFILE + ANNOTATED_PEAKS + ["multiqc_report.html"]
 
-rule fasterq_dump:
-    params:
-        "{sample}"
-    output:
-        "raw_data/{sample}_R1.fastq.gz",
-        "raw_data/{sample}_R2.fastq.gz"
-    threads: 4
-    shell:
-        """
-        fasterq-dump {params} -t {params}_sra_temp -O raw_data -e {threads};
-        gzip raw_data/{params}_1.fastq;
-        gzip raw_data/{params}_2.fastq;
-        mv raw_data/{params}_1.fastq.gz raw_data/{params}_R1.fastq.gz;
-        mv raw_data/{params}_2.fastq.gz raw_data/{params}_R2.fastq.gz
-        """
-
 rule fastqc:
     input:
         "raw_data/{sample}_R1.fastq.gz",
@@ -85,8 +69,7 @@ rule bowtie_align:
         "bowtie2 --very-sensitive --no-unal -p {threads} -x {BT2INDEX} -1 {input.READ1} -2 {input.READ2} 2> {log} | samtools view -bS -o {output}"
 
 rule samtools_sort:
-    input:
-        rules.bowtie_align.output
+    input: rules.bowtie_align.output
         # "results/{sample}.bam"
     output:
         "results/{sample}.sorted.bam"
@@ -186,7 +169,7 @@ rule idr:
 
 rule combine_pk:
     input:
-        [expand("peaks/{sample}_idr.txt", sample=config["samples"]) if config['idr'] else expand("peaks/{sample}_peaks.narrowPeak", sample=config["samples"])]
+        lambda wildcards: [expand("peaks/{sample}_idr.txt", sample=config["samples"]) if config['idr'] else expand("peaks/{sample}_peaks.narrowPeak", sample=config["samples"][wildcards.sample])]
     output:
         "peaks/combined_peaks.sorted.bed"
     shell:
