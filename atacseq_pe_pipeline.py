@@ -56,7 +56,7 @@ rule trim_galore:
 
 rule bowtie_align:
     output:
-        "results/{sample}.bam"
+        temp("alignment/{sample}.bam")
     input:
         READ1 = "trimmed_fastq/{sample}_R1_val_1.fq",
         READ2 = "trimmed_fastq/{sample}_R2_val_2.fq"
@@ -72,7 +72,7 @@ rule samtools_sort:
     input: rules.bowtie_align.output
         # "results/{sample}.bam"
     output:
-        "results/{sample}.sorted.bam"
+        temp("alignment/{sample}.sorted.bam")
     log:
         "logs/{sample}.samtools_sort.log"
     singularity:
@@ -82,7 +82,7 @@ rule samtools_sort:
 
 rule remove_duplicates:
     input:
-        "results/{sample}.sorted.bam"
+        "alignment/{sample}.sorted.bam"
     output:
         BAM = "results/{sample}.sorted.dedup.bam",
         METRICS = "results/{sample}.dedup.metrics.txt"
@@ -105,7 +105,7 @@ rule remove_blacklisted:
         BAM = "results/{sample}.sorted.dedup.bam",
         BLACKLIST = BLACKLIST
     output:
-        "results/{sample}.sorted.dedup.masked.bam"
+        "alignment/{sample}.sorted.dedup.masked.bam"
     log:
         "logs/{sample}.deblacklist.log"
     singularity:
@@ -115,11 +115,11 @@ rule remove_blacklisted:
 
 rule samtools_index:
     input:
-        "results/{sample}.sorted.dedup.masked.bam"
+        "alignment/{sample}.sorted.dedup.masked.bam"
     output:
-        "results/{sample}.sorted.dedup.masked.bai"
+        "alignment/{sample}.sorted.dedup.masked.bai"
     log:
-        "logs/{sample}.sami_ndex.log"
+        "logs/{sample}.sam_index.log"
     singularity:
         "docker://jweinstk/samtools"
     shell:
@@ -130,7 +130,7 @@ rule bam_coverage:
         BAM = lambda wildcards: "results/{}.sorted.dedup.masked.bam".format(mappings[wildcards.sample]),
         BAI = lambda wildcards: "results/{}.sorted.dedup.masked.bai".format(mappings[wildcards.sample])
     output:
-        "results/{sample}.dedup.masked.rpkm.bw"
+        "bigwigs/{sample}.dedup.masked.rpkm.bw"
     singularity:
         "docker://genomicpariscentre/deeptools"
     threads: 4
@@ -147,7 +147,7 @@ rule bam_coverage:
 
 rule callpeaks_narrow:
     input:
-        "results/{sample}.sorted.dedup.masked.bam"
+        "alignment/{sample}.sorted.dedup.masked.bam"
     output:
         "peaks/{sample}_peaks.narrowPeak"
     singularity:
@@ -164,6 +164,8 @@ rule idr:
         lambda wildcards: expand("peaks/{replicate}_peaks.narrowPeak", replicate=config['samples'][wildcards.sample])
     output:
         "peaks/{sample}_idr.txt"
+    log:
+        "logs/{sample}.idr.log"
     shell:
         "idr --samples {input} --idr-threshold 0.05 --output-file {output}"
 
@@ -205,7 +207,7 @@ rule featureCounts:
     singularity:
         "docker://genomicpariscentre/featurecounts"
     log:
-        "logs/featureCounts.log"
+        "logs/featurecounts.log"
     shell:
         "featureCounts -T {threads} --largestOverlap -F SAF --ignoreDup \
         -a {input.PEAKSET} \
