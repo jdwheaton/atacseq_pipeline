@@ -64,7 +64,7 @@ rule bowtie_align:
         "logs/{sample}.bowtie.log"
     threads: 5
     singularity:
-        "docker://dukegcb/bowtie2:latest"
+        "docker://flowcraft/bowtie2_samtools:1.0.0-1"
     shell:
         "bowtie2 --very-sensitive --no-unal -p {threads} -x {BT2INDEX} -1 {input.READ1} -2 {input.READ2} 2> {log} | samtools view -bS -o {output}"
 
