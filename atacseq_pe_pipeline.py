@@ -91,7 +91,7 @@ rule remove_duplicates:
     singularity:
         "docker://broadinstitute/picard"
     shell: """
-            java -Xmx16g -jar /picard.jar MarkDuplicates \
+            java -Xmx16g -jar /usr/picard/picard.jar MarkDuplicates \
                 INPUT={input} \
                 OUTPUT={output.BAM} \
                 METRICS_FILE={output.METRICS} \
