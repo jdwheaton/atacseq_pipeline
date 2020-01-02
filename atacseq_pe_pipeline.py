@@ -165,7 +165,7 @@ rule callpeaks_narrow:
         "logs/{sample}.macs2.log"
     params:
         g = (lambda x: "hs" if "hg" in x else "mm")(GENOME)
-        q = (lambda x: 1 if x is True else 0.1)(config['idr'])
+        q = [1 if config['idr'] else 0.1]
     shell:
         "macs2 callpeak --nomodel -t {input} -f BED \
         --shift -100 --extsize 200 \
