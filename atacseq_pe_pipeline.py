@@ -6,6 +6,7 @@ BT2INDEX = config["bt2_index"]
 BLACKLIST = config["blacklist"]
 COUNTFILE = [config["countfile"]]
 ANNOTATION = config["annotation"]
+GENOME = config["genome"]
 
 def revLookup(sample):
     '''Finds the condition grouping name and rep number for a given sample'''
@@ -145,19 +146,30 @@ rule bam_coverage:
                 &> {log}
                 """
 
-rule callpeaks_narrow:
+rule unique_tags:
     input:
         "alignment/{sample}.sorted.dedup.masked.bam"
+    output:
+        temp("alignment/{sample}_unique_tags.bed")
+    shell:
+        "samtools view -b -F 0x400 {input} | bedtools bamtobed -i - > {output} "
+
+rule callpeaks_narrow:
+    input:
+        "alignment/{sample}_unique_tags.bed"
     output:
         "peaks/{sample}_peaks.narrowPeak"
     singularity:
         "docker://dukegcb/macs2"
     log:
         "logs/{sample}.macs2.log"
+    params:
+        g = (lambda x: "hs" if "hg" in x else "mm")(GENOME)
+        q = (lambda x: 1 if x else 0.1)(config['idr'])
     shell:
-        "macs2 callpeak --nomodel -t {input} -f BAM \
+        "macs2 callpeak --nomodel -t {input} -f BED \
         --shift -100 --extsize 200 \
-        -n peaks/{wildcards.sample} -g mm -q 0.1 &> {log}"
+        -n peaks/{wildcards.sample} -g {g} -q {q} &> {log}"
 
 rule idr:
     input:

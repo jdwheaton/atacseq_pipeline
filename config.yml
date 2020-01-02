@@ -2,6 +2,7 @@ bt2_index: "~/genomes/mm10/bowtie2/mm10"
 blacklist: "reference_data/ENCFF547MET.bed"
 countfile: "peaks/SX_atac_idr.counts"
 annotation: "~/genomes/mm10/gencode.vM23.annotation.gtf"
+genome: "mm10"
 paired: true
 idr: false
 samples:
